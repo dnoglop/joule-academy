@@ -37,51 +37,60 @@ export interface Database {
       }
       user_profiles: {
         Row: {
-          id: string
-          user_id: string | null
-          full_name: string
-          email: string
-          role: 'funcionario' | 'gestor'
-          department: string | null
-          position: string | null
-          manager_id: string | null
-          hire_date: string | null
-          avatar_url: string | null
-          phone: string | null
-          created_at: string | null
-          updated_at: string | null
-        }
+          id: string;
+          user_id: string | null;
+          full_name: string;
+          email: string;
+          role: 'Admin' | 'Gestor' | 'Funcionario';
+          department: string | null;
+          position: string | null;
+          manager_id: string | null;
+          hire_date: string | null;
+          avatar_url: string | null;
+          phone: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+          seniority: string | null;
+          contract_type: string | null;
+          status: string;
+        };
         Insert: {
-          id?: string
-          user_id?: string | null
-          full_name: string
-          email: string
-          role?: 'funcionario' | 'gestor'
-          department?: string | null
-          position?: string | null
-          manager_id?: string | null
-          hire_date?: string | null
-          avatar_url?: string | null
-          phone?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
+          id?: string;
+          user_id?: string | null;
+          full_name: string;
+          email: string;
+          role?: 'Admin' | 'Gestor' | 'Funcionario';
+          department?: string | null;
+          position?: string | null;
+          manager_id?: string | null;
+          hire_date?: string | null;
+          avatar_url?: string | null;
+          phone?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          seniority?: string | null;
+          contract_type?: string | null;
+          status?: string;
+        };
         Update: {
-          id?: string
-          user_id?: string | null
-          full_name?: string
-          email?: string
-          role?: 'funcionario' | 'gestor'
-          department?: string | null
-          position?: string | null
-          manager_id?: string | null
-          hire_date?: string | null
-          avatar_url?: string | null
-          phone?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-      }
+          id?: string;
+          user_id?: string | null;
+          full_name?: string;
+          email?: string;
+          role?: 'Admin' | 'Gestor' | 'Funcionario';
+          department?: string | null;
+          position?: string | null;
+          manager_id?: string | null;
+          hire_date?: string | null;
+          avatar_url?: string | null;
+          phone?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          seniority?: string | null;
+          contract_type?: string | null;
+          status?: string;
+        };
+      };
       pdis: {
         Row: {
           id: string

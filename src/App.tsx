@@ -15,6 +15,7 @@ import Analytics from './pages/Analytics';
 import Matrix9Box from './pages/Matrix9Box';
 import Avaliacao360 from './pages/Avaliacao360';
 import Configuracoes from './pages/Configuracoes';
+import AcceptInvitation from './pages/AcceptInvitation';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/esqueci-senha" element={<ForgotPassword />} />
             <Route path="/redefinir-senha" element={<ResetPassword />} />
+            <Route path="/aceitar-convite" element={<AcceptInvitation />} />
             
             {/* Protected Routes */}
             <Route path="/dashboard" element={

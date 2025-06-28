@@ -23,7 +23,8 @@ const ResetPassword: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
-  const { updatePassword } = useAuth();
+  // Integração com o AuthContext para obter o estado e as funções
+  const { user, loading: authLoading, updatePassword } = useAuth();
   const navigate = useNavigate();
 
   const passwordRequirements = [
@@ -34,33 +35,20 @@ const ResetPassword: React.FC = () => {
     { text: 'Um caractere especial', test: (pwd: string) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd) }
   ];
 
-  const validatePassword = () => {
-    const newErrors: string[] = [];
-    
-    if (!password) {
-      newErrors.push('Nova senha é obrigatória');
-    } else {
-      passwordRequirements.forEach(req => {
-        if (!req.test(password)) {
-          newErrors.push(req.text);
-        }
-      });
-    }
-    
-    if (!confirmPassword) {
-      newErrors.push('Confirmação de senha é obrigatória');
-    } else if (password !== confirmPassword) {
-      newErrors.push('As senhas não coincidem');
-    }
-    
-    setErrors(newErrors);
-    return newErrors.length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validatePassword()) {
+    setErrors([]); // Limpa erros anteriores
+
+    const allReqsMet = passwordRequirements.every(req => req.test(password));
+    if (!allReqsMet) {
+      showToast.error('A nova senha não atende a todos os requisitos.');
+      setErrors(['A nova senha não atende a todos os requisitos.']);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showToast.error('As senhas não coincidem.');
+      setErrors(['As senhas não coincidem.']);
       return;
     }
     
@@ -71,20 +59,51 @@ const ResetPassword: React.FC = () => {
       
       if (error) {
         showToast.error('Erro ao redefinir senha. Tente novamente.');
-        setErrors(['Erro ao redefinir senha. Tente novamente.']);
+        setErrors([error.message]);
       } else {
         setIsSuccess(true);
         showToast.success('Senha redefinida com sucesso!');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Reset password error:', error);
       showToast.error('Erro interno. Tente novamente.');
-      setErrors(['Erro interno. Tente novamente.']);
+      setErrors([error.message || 'Erro interno.']);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // --- Lógica de Renderização Condicional ---
+
+  // 1. Enquanto o AuthProvider processa o link, mostramos um loading.
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center space-y-4">
+            <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
+            <p className="text-gray-600 font-semibold">Verificando link de redefinição...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Se o AuthProvider terminou e não há usuário, o link é inválido.
+  //    (A verificação `!isSuccess` impede que esta tela apareça após o sucesso)
+  if (!user && !isSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md text-center">
+          <h2 className="text-2xl font-bold text-red-700 mb-4">Erro na Redefinição</h2>
+          <p className="text-gray-600 mb-6">Este link de redefinição de senha é inválido ou já expirou.</p>
+          <button onClick={() => navigate('/login')} className="bg-gray-500 text-white py-2 px-4 rounded-lg">
+            Voltar para o Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Se o processo foi bem-sucedido, mostra a tela de sucesso.
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50/30 to-purple-50/30 flex items-center justify-center p-8">
@@ -131,9 +150,9 @@ const ResetPassword: React.FC = () => {
     );
   }
 
+  // 4. Se o usuário foi autenticado, mostra o formulário de redefinição.
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50/30 to-purple-50/30 flex">
-      {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
@@ -141,7 +160,6 @@ const ResetPassword: React.FC = () => {
           transition={{ duration: 0.8 }}
           className="w-full max-w-md"
         >
-          {/* Logo */}
           <div className="text-center mb-8">
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -156,7 +174,6 @@ const ResetPassword: React.FC = () => {
             </motion.div>
           </div>
 
-          {/* Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -180,13 +197,9 @@ const ResetPassword: React.FC = () => {
               >
                 <div className="flex items-center space-x-2 mb-2">
                   <AlertCircle className="w-4 h-4 text-red-500" />
-                  <span className="text-sm font-semibold text-red-900">Corrija os seguintes erros:</span>
+                  <span className="text-sm font-semibold text-red-900">Corrija o seguinte erro:</span>
                 </div>
-                <ul className="text-sm text-red-700 space-y-1">
-                  {errors.map((error, index) => (
-                    <li key={index}>• {error}</li>
-                  ))}
-                </ul>
+                <p className="text-sm text-red-700">{errors[0]}</p>
               </motion.div>
             )}
 
@@ -202,13 +215,13 @@ const ResetPassword: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Digite sua nova senha"
-                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -226,20 +239,19 @@ const ResetPassword: React.FC = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirme sua nova senha"
-                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
 
-              {/* Password Requirements */}
               {password && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
@@ -274,7 +286,7 @@ const ResetPassword: React.FC = () => {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -288,7 +300,6 @@ const ResetPassword: React.FC = () => {
             </form>
           </motion.div>
 
-          {/* Footer Links */}
           <div className="text-center mt-6 space-y-2">
             <Link
               to="/login"
@@ -299,11 +310,9 @@ const ResetPassword: React.FC = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Right Side - Security Info */}
+      
       <div className="hidden lg:flex flex-1 bg-gradient-to-br from-orange-500 to-purple-600 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
-        
         <div className="relative z-10 flex flex-col justify-center items-center text-white p-12">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -314,50 +323,15 @@ const ResetPassword: React.FC = () => {
             <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-8">
               <Shield className="w-12 h-12" />
             </div>
-            
             <h2 className="text-4xl font-black mb-6">
-              Senha Segura,
-              <br />
-              Conta Protegida
+              Senha Segura,<br />Conta Protegida
             </h2>
-            
             <p className="text-xl text-white/90 leading-relaxed mb-8">
               Uma senha forte é sua primeira linha de defesa. Siga nossas 
               recomendações para manter sua conta segura.
             </p>
-
-            <div className="space-y-4 text-left">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-                <span className="text-white/90">Use uma combinação única</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-                <span className="text-white/90">Evite informações pessoais</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-                <span className="text-white/90">Não reutilize senhas antigas</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-                <span className="text-white/90">Mantenha-a confidencial</span>
-              </div>
-            </div>
           </motion.div>
         </div>
-
-        {/* Floating Elements */}
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 4, repeat: Infinity }}
-          className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full backdrop-blur-sm"
-        />
-        <motion.div
-          animate={{ scale: [1.1, 1, 1.1] }}
-          transition={{ duration: 3, repeat: Infinity }}
-          className="absolute bottom-20 left-20 w-24 h-24 bg-white/10 rounded-full backdrop-blur-sm"
-        />
       </div>
     </div>
   );
