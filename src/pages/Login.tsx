@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { showToast } from '../utils/toast';
 import { 
   Mail, 
   Lock, 
@@ -12,7 +15,6 @@ import {
   Users,
   AlertCircle
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -20,22 +22,32 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simulate login process
-    setTimeout(() => {
-      if (email === 'admin@joule.com' && password === 'admin123') {
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
-      } else {
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
         setError('E-mail ou senha incorretos. Tente novamente.');
+        showToast.error('Erro ao fazer login. Verifique suas credenciais.');
+      } else {
+        showToast.success('Login realizado com sucesso!');
+        navigate('/dashboard');
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Erro interno. Tente novamente.');
+      showToast.error('Erro interno. Tente novamente.');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -163,20 +175,6 @@ const Login: React.FC = () => {
                 )}
               </motion.button>
             </form>
-
-            {/* Demo Credentials */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg"
-            >
-              <h4 className="font-semibold text-blue-900 mb-2">🚀 Acesso Demo</h4>
-              <div className="text-sm text-blue-700 space-y-1">
-                <p><strong>E-mail:</strong> admin@joule.com</p>
-                <p><strong>Senha:</strong> admin123</p>
-              </div>
-            </motion.div>
           </motion.div>
 
           {/* Footer Links */}

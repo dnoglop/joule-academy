@@ -1,5 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout/Layout';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
@@ -15,54 +18,71 @@ import Configuracoes from './pages/Configuracoes';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Landing Page as Root */}
-        <Route path="/" element={<LandingPage />} />
-        
-        {/* Auth Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/esqueci-senha" element={<ForgotPassword />} />
-        <Route path="/redefinir-senha" element={<ResetPassword />} />
-        
-        {/* Protected Routes */}
-        <Route path="/dashboard" element={
-          <Layout>
-            <Dashboard />
-          </Layout>
-        } />
-        <Route path="/equipe" element={
-          <Layout>
-            <Team />
-          </Layout>
-        } />
-        <Route path="/matriz" element={
-          <Layout>
-            <Matrix9Box />
-          </Layout>
-        } />
-        <Route path="/academia" element={
-          <Layout>
-            <Academy />
-          </Layout>
-        } />
-        <Route path="/avaliacao" element={
-          <Layout>
-            <Avaliacao360 />
-          </Layout>
-        } />
-        <Route path="/analytics" element={
-          <Layout>
-            <Analytics />
-          </Layout>
-        } />
-        <Route path="/configuracoes" element={
-          <Layout>
-            <Configuracoes />
-          </Layout>
-        } />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Toaster />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/esqueci-senha" element={<ForgotPassword />} />
+            <Route path="/redefinir-senha" element={<ResetPassword />} />
+            
+            {/* Protected Routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/equipe" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Team />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/matriz" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Matrix9Box />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/academia" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Academy />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/avaliacao" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Avaliacao360 />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Analytics />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/configuracoes" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Configuracoes />
+                </Layout>
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

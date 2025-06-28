@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { showToast } from '../utils/toast';
 import { 
   Mail, 
   ArrowLeft, 
@@ -9,22 +12,33 @@ import {
   Shield,
   Clock
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
+  
+  const { resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate email sending
-    setTimeout(() => {
-      setIsEmailSent(true);
+    try {
+      const { error } = await resetPassword(email);
+      
+      if (error) {
+        showToast.error('Erro ao enviar e-mail. Verifique o endereço informado.');
+      } else {
+        setIsEmailSent(true);
+        showToast.success('E-mail de redefinição enviado com sucesso!');
+      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      showToast.error('Erro interno. Tente novamente.');
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   if (isEmailSent) {

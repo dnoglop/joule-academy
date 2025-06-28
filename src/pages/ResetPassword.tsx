@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { showToast } from '../utils/toast';
 import { 
   Lock, 
   Eye, 
@@ -10,7 +13,6 @@ import {
   AlertCircle,
   Check
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -20,6 +22,9 @@ const ResetPassword: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+
+  const { updatePassword } = useAuth();
+  const navigate = useNavigate();
 
   const passwordRequirements = [
     { text: 'Pelo menos 8 caracteres', test: (pwd: string) => pwd.length >= 8 },
@@ -61,11 +66,23 @@ const ResetPassword: React.FC = () => {
     
     setIsLoading(true);
 
-    // Simulate password reset
-    setTimeout(() => {
-      setIsSuccess(true);
+    try {
+      const { error } = await updatePassword(password);
+      
+      if (error) {
+        showToast.error('Erro ao redefinir senha. Tente novamente.');
+        setErrors(['Erro ao redefinir senha. Tente novamente.']);
+      } else {
+        setIsSuccess(true);
+        showToast.success('Senha redefinida com sucesso!');
+      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      showToast.error('Erro interno. Tente novamente.');
+      setErrors(['Erro interno. Tente novamente.']);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   if (isSuccess) {
