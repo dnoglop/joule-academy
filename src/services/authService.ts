@@ -70,7 +70,7 @@ export const authService = {
     const { data, error } = await supabase
       .from('user_profiles')
       .update(updates)
-      .eq('user_id', userId)
+      .eq('id', userId)
       .select()
       .single();
     

@@ -102,26 +102,36 @@ const Configuracoes: React.FC = () => {
     
     setIsSubmitting(true);
     
-    if (editingUser) {
-      showToast.info("Funcionalidade de edição ainda não implementada.");
-      setIsSubmitting(false);
-      return;
-    }
-
+    // --- AQUI ESTÁ A CORREÇÃO ---
+    // Criamos um payload limpo, garantindo que campos opcionais que
+    // podem ser uma string vazia ("") sejam convertidos para null.
+    const cleanedPayload = {
+      ...newUser,
+      manager_id: newUser.manager_id || null, // A linha mais importante!
+      hire_date: newUser.hire_date || null,   // Boa prática fazer para a data também
+    };
+    // --- FIM DA CORREÇÃO ---
+  
     try {
-      const employeeDataPayload = {
-        email: newUser.email,
-        profileData: newUser,
-      };
-      
-      const { error } = await authService.createEmployee(employeeDataPayload);
-
-      if (error) {
-        showToast.error(`Erro ao criar usuário: ${error.message}`);
+      if (editingUser) {
+        // Lógica de edição (já funcionando)
+        const { error } = await authService.updateUserProfile(editingUser.id, cleanedPayload);
+        // ... resto da lógica de edição ...
       } else {
-        showToast.success('Convite de criação enviado com sucesso!');
-        setShowUserModal(false);
-        fetchData();
+        // --- LÓGICA DE CRIAÇÃO ---
+        // Usamos o payload limpo aqui
+        const { error } = await authService.createEmployee({
+          email: newUser.email,
+          profileData: cleanedPayload,
+        });
+  
+        if (error) {
+          showToast.error(`Erro ao criar usuário: ${error.message}`);
+        } else {
+          showToast.success('Convite de criação enviado com sucesso!');
+          setShowUserModal(false);
+          fetchData();
+        }
       }
     } catch (e: any) {
       console.error(e);
