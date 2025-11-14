@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { CheckIcon } from './icons';
 
@@ -51,7 +50,7 @@ const Hero: React.FC = () => {
           <div className={`relative transition-all duration-700 ease-out delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
             <div className="absolute -top-8 -left-8 w-32 h-32 bg-primary/10 rounded-full opacity-50 -z-10"></div>
             <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-secondary/10 rounded-full opacity-50 -z-10"></div>
-            <img src="https://academy.institutojoule.org/wp-content/uploads/2025/11/2024-KPMG-Hackathon-da-Mentoria-1080-x-1080-px-1.png" alt="Jovem estudante sorrindo" className="rounded-lg shadow-2xl w-full h-auto object-cover animate-pulse-slow" />
+            <img src="https://academy.institutojoule.org/wp-content/uploads/2025/11/2024-KPMG-Hackathon-da-Mentoria-1080-x-1080-px-1.png" alt="Jovem estudante sorrindo" className="rounded-lg w-full h-auto object-cover animate-pulse-slow" />
           </div>
         </div>
       </div>
