@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Joule Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Slabo+27px&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --background: 0 0% 93%; /* #ededed */
+        --foreground: 0 0% 15%; /* #262626 */
+        --card: 0 0% 100%; /* #ffffff */
+        --card-foreground: 0 0% 15%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 15%;
+        --primary: 39 100% 50%; /* #ffa101 */
+        --primary-foreground: 0 0% 0%; /* #000000 */
+        --secondary: 215 25% 97%; /* #f2f4f7 */
+        --secondary-foreground: 212 19% 34%; /* #465468 */
+        --muted: 215 25% 97%;
+        --muted-foreground: 0 0% 45%; /* #737373 */
+        --accent: 215 25% 97%;
+        --accent-foreground: 212 19% 34%;
+        --destructive: 0 84% 60%; /* #ef4444 */
+        --destructive-foreground: 0 0% 98%; /* #fafafa */
+        --border: 0 0% 90%; /* #e5e5e5 */
+        --input: 0 0% 90%;
+        --ring: 39 100% 50%;
+        --radius: 1rem;
+        --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.05);
+        --shadow-xs: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.05);
+        --shadow-sm: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 1px 2px -2px hsl(0 0% 10.1961% / 0.10);
+        --shadow: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 1px 2px -2px hsl(0 0% 10.1961% / 0.10);
+        --shadow-md: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 2px 4px -2px hsl(0 0% 10.1961% / 0.10);
+        --shadow-lg: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 4px 6px -2px hsl(0 0% 10.1961% / 0.10);
+        --shadow-xl: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.10), 0px 8px 10px -2px hsl(0 0% 10.1961% / 0.10);
+        --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 10.1961% / 0.25);
+      }
+
+      .dark {
+        --background: 0 0% 10%; /* #1a1a1a */
+        --foreground: 215 25% 97%; /* #f2f4f7 */
+        --card: 0 0% 15%; /* #262626 */
+        --card-foreground: 215 25% 97%;
+        --popover: 0 0% 15%;
+        --popover-foreground: 215 25% 97%;
+        --primary: 39 100% 50%;
+        --primary-foreground: 0 0% 0%;
+        --secondary: 0 0% 15%;
+        --secondary-foreground: 215 25% 97%;
+        --muted: 240 4% 26%; /* #3f3f46 */
+        --muted-foreground: 240 5% 65%; /* #a1a1aa */
+        --accent: 240 4% 26%;
+        --accent-foreground: 215 25% 97%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 4% 26%;
+        --input: 240 4% 26%;
+        --ring: 39 100% 50%;
+      }
+      
+      body {
+        font-family: 'Poppins', sans-serif;
+      }
+      .animated-section {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+      .animated-section.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      /* Utility to hide scrollbars */
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+      /* Pulse Animation */
+      @keyframes pulse-slow {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.03);
+        }
+      }
+      .animate-pulse-slow {
+        animation: pulse-slow 4s ease-in-out infinite;
+      }
+    </style>
+    <script>
+      // Avoids FOUC for dark mode by setting theme class before React loads
+      // Defaults to light theme unless 'dark' is explicitly stored
+      if (localStorage.theme === 'dark') {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+      // Configure Tailwind CSS to enable class-based dark mode
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              border: 'hsl(var(--border))',
+              input: 'hsl(var(--input))',
+              ring: 'hsl(var(--ring))',
+              background: 'hsl(var(--background))',
+              foreground: 'hsl(var(--foreground))',
+              primary: {
+                DEFAULT: 'hsl(var(--primary))',
+                foreground: 'hsl(var(--primary-foreground))',
+              },
+              secondary: {
+                DEFAULT: 'hsl(var(--secondary))',
+                foreground: 'hsl(var(--secondary-foreground))',
+              },
+              destructive: {
+                DEFAULT: 'hsl(var(--destructive))',
+                foreground: 'hsl(var(--destructive-foreground))',
+              },
+              muted: {
+                DEFAULT: 'hsl(var(--muted))',
+                foreground: 'hsl(var(--muted-foreground))',
+              },
+              accent: {
+                DEFAULT: 'hsl(var(--accent))',
+                foreground: 'hsl(var(--accent-foreground))',
+              },
+              popover: {
+                DEFAULT: 'hsl(var(--popover))',
+                foreground: 'hsl(var(--popover-foreground))',
+              },
+              card: {
+                DEFAULT: 'hsl(var(--card))',
+                foreground: 'hsl(var(--card-foreground))',
+              },
+            },
+            borderRadius: {
+              lg: 'var(--radius)',
+              md: 'calc(var(--radius) - 2px)',
+              sm: 'calc(var(--radius) - 4px)',
+            },
+            fontFamily: {
+              sans: ['Poppins', 'ui-sans-serif', 'sans-serif', 'system-ui'],
+              serif: ['Slabo 27px', 'ui-serif', 'serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            boxShadow: {
+                '2xs': 'var(--shadow-2xs)',
+                'xs': 'var(--shadow-xs)',
+                'sm': 'var(--shadow-sm)',
+                'DEFAULT': 'var(--shadow)',
+                'md': 'var(--shadow-md)',
+                'lg': 'var(--shadow-lg)',
+                'xl': 'var(--shadow-xl)',
+                '2xl': 'var(--shadow-2xl)',
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-background">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
